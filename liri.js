@@ -9,8 +9,8 @@ var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 // console.log('client: ' + client);
 
-
-switch(process.argv[2]) {
+function pickOne(command, selection) {
+switch(command) {
     case "my-tweets": {
         var params = {screen_name: 'alfredbenson70'};
         client.get('statuses/user_timeline', params, function(error, tweets, response) {
@@ -28,7 +28,7 @@ switch(process.argv[2]) {
         break;
     }
     case "spotify-this-song": {
-        var search = ((process.argv[3]) === undefined) ? "the sign" : process.argv[3];
+        var search = ((selection) === undefined) ? "the sign" : selection;
         spotify.search({ type: 'track', query: search }, function(err, data) {
             if (err) {
               return console.log('Error occurred: ' + err);
@@ -41,7 +41,7 @@ switch(process.argv[2]) {
         break;
     }
     case "movie-this": {
-        var movieName = (process.argv[3] === undefined) ? "Mr. Nobody" : "'" + process.argv[3] + "'";
+        var movieName = (selection === undefined) ? "Mr. Nobody" : selection;
         var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
         request(queryUrl, (err, response, body) => {
             console.log("Name: " + JSON.parse(body).Title);
@@ -56,8 +56,17 @@ switch(process.argv[2]) {
         break;
     }
     case "do-what-it-says": {
-
+        fs.readFile("random.txt", "utf8", (err, data) => {
+            if(err) {console.log(err)}
+            else{
+                 var dataArr = data.split(",");
+                pickOne(dataArr[0], dataArr[1]);
+                }
+        })
         break;
     }
     default: console.log("Sorry, that's not an operation I can perform");
 }
+}
+
+pickOne(process.argv[2], process.argv[3]);
